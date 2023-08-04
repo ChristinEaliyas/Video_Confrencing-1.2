@@ -7,8 +7,12 @@ const io = require('socket.io')(server);
 const { v4: uuidV4 } = require('uuid');
 const exp = require('constants');
 const bcrypt = require("bcrypt");
-const session = require('express-session')
-const flash = require('express-flash')
+const session = require('express-session');
+const flash = require('express-flash');
+const passport = require('passport');
+
+const initializePassport = require('./passportConfig');
+initializePassport(passport);
 
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
@@ -21,6 +25,8 @@ app.use(session({
     saveUninitialized: false
 }));
 app.use(flash()); 
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (req, res) => {
     res.render('home')
@@ -32,7 +38,13 @@ app.get('/user/login', (req, res) => {
 app.get('/user/register', (req, res) => {
     res.render("register")
 })
-
+app.get('/user/dashboard', (req, res) => {
+    res.render("dashboard")
+})
+app.get('/user/logout', (req, res) => {
+    req.logOut();
+    res.redirect("/")
+})
 app.get('/join-room', (req, res) => {
     res.redirect(`/${uuidV4()}`)
 })
@@ -91,6 +103,28 @@ app.post('/user/register', async (req, res) => {
     }
     
 });
+
+app.post("/user/login",
+    passport.authenticate("local", {
+        successRedirect: "/",
+        failureRedirect: "/user/login",
+        failureFlash: true
+    })
+);
+
+function checkAuthenticated(req, res, next) {
+    if(req.isAuthenticated()){
+        return res.redirect("/user/dashboard");
+    }
+    next();
+}
+function checkNotAuthenticated(req, res, next) {
+    if(req.isAuthenticated()){
+        next();   
+    }
+    return res.redirect("/user/login");
+}
+
 
 io.on('connection', Socket => {
     Socket.on('join-room', (roomId, userId) => {
