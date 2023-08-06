@@ -38,19 +38,25 @@ app.get('/user/login', (req, res) => {
 app.get('/user/register', (req, res) => {
     res.render("register")
 })
-app.get('/user/dashboard', (req, res) => {
-    res.render("dashboard")
+app.get('/user/dashboard', checkNotAuthenticated, (req, res) => {
+    res.render("dashboard", {user: req.user.name})
 })
 app.get('/user/logout', (req, res) => {
     req.logOut();
     res.redirect("/")
 })
-app.get('/join-room', (req, res) => {
+app.get('/join-room', checkNotAuthenticated,(req, res) => {
     res.redirect(`/${uuidV4()}`)
 })
 
-app.get('/:room', (req, res) => {
+app.get('/:room', checkNotAuthenticated, (req, res) => {
     res.render('room', { roomId: req.params.room})
+})
+
+// ----- api -----
+app.get('/api/user/id', (req, res) => {
+    const userId = req.user.id;
+    res.json(userId)
 })
 
 app.post('/user/register', async (req, res) => {
@@ -120,7 +126,7 @@ function checkAuthenticated(req, res, next) {
 }
 function checkNotAuthenticated(req, res, next) {
     if(req.isAuthenticated()){
-        next();   
+        return next();   
     }
     return res.redirect("/user/login");
 }
@@ -128,8 +134,13 @@ function checkNotAuthenticated(req, res, next) {
 
 io.on('connection', Socket => {
     Socket.on('join-room', (roomId, userId) => {
+        console.log(roomId, userId)
         Socket.join(roomId)
         Socket.to(roomId).emit('user-connected', userId)
+
+        Socket.on('disconnect', () =>{
+            Socket.to(roomId).emit('user-disconnected', userId)
+        })
     })
 })
 

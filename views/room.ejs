@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +10,7 @@
     <script src="/socket.io/socket.io.js" defer></script>
     <script src="script.js" defer></script>
     <style>
-        .video-grid {
+        #video-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, 300px);
             grid-auto-rows: 300px;
@@ -24,6 +23,6 @@
     </style>
 </head>
 <body>
-    <div class="video-grid"></div>
+    <div id="video-grid"></div>
 </body>
 </html>
