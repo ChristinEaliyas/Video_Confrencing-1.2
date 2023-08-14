@@ -8,3 +8,6 @@
 
     pasport and pasport-local : Stores loged in user data in browser cookie
     
+
+
+    make create room efficient by checking if room is there then make a new ID

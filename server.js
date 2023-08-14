@@ -1,11 +1,10 @@
 const express = require('express');
-const { Socket } = require('socket.io');
+const { socket } = require('socket.io');
 const app = express();
 const { pool } = require("./dbConfig");
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const { v4: uuidV4 } = require('uuid');
-const exp = require('constants');
 const bcrypt = require("bcrypt");
 const session = require('express-session');
 const flash = require('express-flash');
@@ -45,9 +44,45 @@ app.get('/user/logout', (req, res) => {
     req.logOut();
     res.redirect("/")
 })
-app.get('/join-room', checkNotAuthenticated,(req, res) => {
-    res.redirect(`/${uuidV4()}`)
+app.get('/create-room', checkNotAuthenticated,(req, res) => {
+    let newRoomId = uuidV4()
+    let errors = [];
+    pool.query(
+        `INSERT INTO rooms (roomid)
+        VALUES ($1)
+        RETURNING id`,
+        [newRoomId],
+        (err, results) => {
+            if (err){
+                if(err.code === '23505'){
+                    errors.push({ message: "This Room is in a Meeting"}) // Display Message is not Done
+                    res.render("register", { errors })
+                }else{
+                    throw err;
+                }
+            }
+        }
+    );
+    res.redirect(`/${newRoomId}`)
 })
+
+app.post("/join-room", async (req, res) => {
+    let { roomId } = req.body;
+    let errors = [];
+    checkRoomExists(roomId)
+        .then(roomExist => {
+            if (roomExist) {
+                res.redirect(`/${roomId}`);
+            } else {
+                errors.push({ message: "Enter a Valid Room Id" });
+                res.redirect("/user/dashboard");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle the error properly, e.g., render an error page
+        });
+});
 
 app.get('/:room', checkNotAuthenticated, (req, res) => {
     res.render('room', { roomId: req.params.room})
@@ -107,7 +142,6 @@ app.post('/user/register', async (req, res) => {
             }
         )
     }
-    
 });
 
 app.post("/user/login",
@@ -117,6 +151,8 @@ app.post("/user/login",
         failureFlash: true
     })
 );
+
+
 
 function checkAuthenticated(req, res, next) {
     if(req.isAuthenticated()){
@@ -131,17 +167,30 @@ function checkNotAuthenticated(req, res, next) {
     return res.redirect("/user/login");
 }
 
+async function checkRoomExists(roomId) {
+    const query = {
+      text: 'SELECT * FROM rooms WHERE roomid = $1',
+      values: [roomId],
+    };
 
-io.on('connection', Socket => {
-    Socket.on('join-room', (roomId, userId) => {
+    try {
+      const result = await pool.query(query);
+      return result.rows.length > 0; 
+    } catch (error) {
+      console.error('Error querying database:', error);
+      return false; 
+    }
+  }
+
+// Copy in Temp.js
+
+io.on("connection", (socket) => {
+    socket.on('join-room', (roomId, userId) => {
         console.log(roomId, userId)
-        Socket.join(roomId)
-        Socket.to(roomId).emit('user-connected', userId)
-
-        Socket.on('disconnect', () =>{
-            Socket.to(roomId).emit('user-disconnected', userId)
-        })
+        socket.join(roomId)
+        socket.to(roomId).emit('user-connected', userId)
     })
 })
+
 
 server.listen(3000)

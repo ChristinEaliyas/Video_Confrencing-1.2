@@ -9,8 +9,8 @@ pc.createOffer()
     .then(a => console.log("Set Successfully"))
 
 
-const answer = {} // The Answer from B
-pc.setRemoteDescription(ans  )
+const answer = {}
+pc.setRemoteDescription(answer)
 
 
 //--------------------------------------------------------------

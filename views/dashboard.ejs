@@ -6,6 +6,20 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>DashBoard for <%=user%></h1>
+    <h1>DashBoard</h1>
+    <form action="/join-room" method="POST">
+        <div>
+            <input type="text" name="roomId" placeholder="Enter your Room Id">
+            <input type="submit" value="Join">
+            <ul>
+                <% if(typeof errors != 'undefined') { %>
+                    <% errors.forEach(error => { %>
+                    <li><%= error.message%></li>
+                    <%})%>
+                <%}%>
+            </ul>
+        </div>
+    </form>
+    <a href="/create-room">Create a Room</a><br>
 </body>
 </html>
