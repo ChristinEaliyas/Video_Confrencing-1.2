@@ -1,5 +1,6 @@
 const express = require('express');
 const { socket } = require('socket.io');
+const wrtc = require('wrtc');
 const app = express();
 const { pool } = require("./dbConfig");
 const server = require('http').Server(app);
@@ -7,8 +8,9 @@ const io = require('socket.io')(server);
 const { v4: uuidV4 } = require('uuid');
 const bcrypt = require("bcrypt");
 const session = require('express-session');
-const flash = require('express-flash');
 const passport = require('passport');
+
+
 
 const initializePassport = require('./passportConfig');
 initializePassport(passport);
@@ -23,14 +25,17 @@ app.use(session({
 
     saveUninitialized: false
 }));
-app.use(flash()); 
+
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.get('/', (req, res) => {
     res.render('home')
 })
-
+// DELETE THIS TEMP RENDERING
+app.get('/user/temp', (req, res) => {
+    res.render("temp")
+})
 app.get('/user/login', (req, res) => {
     res.render("login")
 })
@@ -75,7 +80,8 @@ app.post("/join-room", async (req, res) => {
                 res.redirect(`/${roomId}`);
             } else {
                 errors.push({ message: "Enter a Valid Room Id" });
-                res.redirect("/user/dashboard");
+                res.redirect("/");
+                // The Errors are not displayed in frontend
             }
         })
         .catch(error => {
@@ -183,14 +189,18 @@ async function checkRoomExists(roomId) {
   }
 
 // Copy in Temp.js
+const userIdToSocketMapping = new Map();
 
 io.on("connection", (socket) => {
-    socket.on('join-room', (roomId, userId) => {
-        console.log(roomId, userId)
-        socket.join(roomId)
-        socket.to(roomId).emit('user-connected', userId)
-    })
-})
+    socket.on('join-room', data => {
+        const { roomId, userId} = data;
+        console.log("User", userId, "Joined Room")
+        userIdToSocketMapping.set(userId, socket.id);
+        socket.join(roomId);
+        socket.broadcast.to(roomId).emit("User-Joined", {userId})
+    });
+});
+
 
 
 server.listen(3000)

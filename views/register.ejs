@@ -1,53 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" dir="ltr">
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+    <title> Registration or Sign Up form in HTML CSS | CodingLab </title> 
+    <link rel="stylesheet" href="/register.css">
+   </head>
 <body>
-    <h1>Register</h1>
+  <div class="wrapper">
+    <h2>Registration</h2>
     <form action="/user/register" method="POST">
-        <div class="input-feilds">
-            <div>
-                <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Name" required>
-            </div>
-            <div class="input-feilds">
-                <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Email" required>
-            </div>
-            <div class="input-feilds">
-                <input
-                type="password"
-                id="password"
-                name="password1"
-                placeholder="Password" required>
-            </div>
-            <div class="input-feilds">
-                <input
-                type="password"
-                id="password"
-                name="password2"
-                placeholder="Confirm Password" required>
-            </div>
-            </div>
-            <div><input type="submit" value="Register"></div>
-            <ul>
+      <div class="input-box">
+        <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Name" required>
+      </div>
+      <div class="input-box">
+        <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Email" required>
+      </div>
+      <div class="input-box">
+        <input
+            type="password"
+            id="password"
+            name="password1"
+            placeholder="Password" required>
+      </div>
+      <div class="input-box">
+        <input
+            type="password"
+            id="password"
+            name="password2"
+            placeholder="Confirm Password" required>
+      </div>
+      <div class="policy">
+        <input type="checkbox">
+        <h3>I accept all terms & condition</h3>
+      </div>
+      <div class="input-box button">
+        <input type="submit" value="Register">
+	        <ul>
                 <% if(typeof errors != 'undefined') { %>
                     <% errors.forEach(error => { %>
                     <li><%= error.message%></li>
                     <%})%>
                 <%}%>
             </ul>
-            <a href="/user/login">Already a User Login Here</a>
-        </div>
+      </div>
+      <div class="text">
+        <h3>Already have an account? <a href="/user/login">Login now</a></h3>
+      </div>
     </form>
+  </div>
 </body>
 </html>

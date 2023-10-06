@@ -3,12 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="/home.css">
+    <script src="/Scripts/home.js"></script>
+    <title>Home Page</title>
 </head>
 <body>
-    <h1>Home Page</h1>
-    <a href="/user/login">Login</a><br>
-    <a href="/user/register">Register</a><br>
-    <a href="/user/dashboard">Dashboard</a>
+    <nav class="navbar">
+        <div class="logo">
+            <!-- Add Logo -->
+            <h3>K-Meet</h3>
+        </div>
+        <a href="/user/login">Login</a>
+    </nav>
+    
+    <div class="content">
+        <div class="content-left">
+            <h1>Karunya Video Conferencing</h1>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis, animi.</p>
+            <button id="new-meeting">New Meeting</button>
+            <a id="create-link" href="/create-room"></a>
+            <div class="join-meeting-inp">
+                <form action="/join-room" method="POST">
+                    <div>
+                        <input type="text" name="roomId" placeholder="Enter your Room Id">
+                        <input type="submit" value="Join">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
